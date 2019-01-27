@@ -1,5 +1,5 @@
 package lab01;
 
-enum eventType{
+public enum eventType{
     OBSERVER, ARRIVAL, DEPARTURE;
 }
