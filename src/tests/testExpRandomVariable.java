@@ -8,7 +8,7 @@ public class testExpRandomVariable {
             m[i] = utilities.getNextExpoRandomVariable(75);
         }
 
-        // find out mean
+        // The mean
         double mean = 0.0;
         for (double variable : m) {
             mean += variable;
