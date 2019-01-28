@@ -11,13 +11,19 @@ public class utilities {
 
     public List<observerEvent> generateObserverEvents(int maxTime, double rate) {
         List<observerEvent> events = new ArrayList<observerEvent>();
+        double ctr = 0;
+        observerEvent e;
         // TODO implement the generateion procedure
         // counter for time to record the total amount of time that all generations is taking 
         // which will be used as the ts parameter of the Oberserver Events constructor
-
-        // dont overpass maxTime 
-        // events.add(e)
-
+        // dont overpass maxTime
+        
+        while (ctr>= maxTime) {
+        	 ctr += observerEvent.timestamp;
+             e = observerEvent(ctr);
+        	 events.add(e);
+        }
+         
         return events;
     }
 
