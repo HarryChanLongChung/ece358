@@ -7,4 +7,7 @@ public class observerEvent implements simulatedEvent{
     public observerEvent(double ts) {
         timestamp = ts;
     }
+
+    public eventType getEventType() {return et;}
+    public double getTimeStamp() {return timestamp;}
 }

@@ -7,4 +7,7 @@ public class departureEvent implements simulatedEvent{
     public departureEvent(double ts) {
         timestamp = ts;
     }
+
+    public eventType getEventType() {return et;}
+    public double getTimeStamp() {return timestamp;}
 }

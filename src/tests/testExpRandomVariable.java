@@ -1,11 +1,12 @@
-import java.util.Random;
+package tests;
+
 import lab01.utilities;
 
 public class testExpRandomVariable {
     public static void main(String[] args) {
         double[] m = new double[1000];
         for (int i = 0; i < 1000; i++) {
-            m[i] = utilities.getNextExpoRandomVariable(75);
+            m[i] = utilities.getNextExpoRandomVariable(1.00 / 2000);
         }
 
         // The mean

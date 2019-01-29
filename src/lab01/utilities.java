@@ -1,6 +1,9 @@
 package lab01;
 
 import java.util.Random;
+import java.util.PriorityQueue;
+import java.util.List;
+import java.util.ArrayList;
 
 public class utilities {
     public static double getNextExpoRandomVariable(double rate) {
@@ -9,27 +12,29 @@ public class utilities {
         return (Math.log(1.00 - u) / (-1*rate));
     }
 
-    public List<observerEvent> generateObserverEvents(int maxTime, double rate) {
+    public static List<observerEvent> generateObserverEvents(int maxTime, double rate) {
         List<observerEvent> events = new ArrayList<observerEvent>();
         double ctr = 0;
-        observerEvent e;
-        // TODO implement the generateion procedure
-        // counter for time to record the total amount of time that all generations is taking 
-        // which will be used as the ts parameter of the Oberserver Events constructor
-        // dont overpass maxTime
         
-        while (ctr>= maxTime) {
-        	 ctr += observerEvent.timestamp;
-             e = observerEvent(ctr);
-        	 events.add(e);
+        while (ctr <= maxTime) {
+            ctr += getNextExpoRandomVariable(rate);
+        	events.add(new observerEvent(ctr));
         }
-         
         return events;
     }
 
-    public List<arrivalEvent> generateArrivalEvents(int maxTime, double rate) {
+    public static List<arrivalEvent> generateArrivalEvents(int maxTime, double rate, int avgPacketSize) {
         List<arrivalEvent> events = new ArrayList<arrivalEvent>();
-        // TODO implement the generateion procedure
+        double ctr = 0;
+        
+        while (ctr <= maxTime) {
+            ctr += getNextExpoRandomVariable(rate);
+        	events.add(new arrivalEvent(ctr, (int)getNextExpoRandomVariable(1.00/avgPacketSize)));
+        }
         return events;
+    }
+
+    public static PriorityQueue<simulatedEvent> getNewEventQueue(int cap) {
+        return new PriorityQueue<simulatedEvent>(cap, new simulatedEventComparator());
     }
 }
