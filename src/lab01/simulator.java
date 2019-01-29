@@ -17,6 +17,7 @@ public class simulator {
     private int numberOfPackageInBuffer;
     private int totalBufferSize;
     private Boolean debug = false;
+    private double lastPacketDepartureTime;
 
     public int ctrArrival;
     public int ctrDeparture;
@@ -60,7 +61,7 @@ public class simulator {
                 default:
                     break;
             }
-            if (debug) System.out.print(e.getTimeStamp());
+            if (debug) System.out.print(e.getTimeStamp() + "(" + numberOfPackageInBuffer + ")");
             if (debug) System.out.println();
         }
         report();
@@ -69,6 +70,7 @@ public class simulator {
     private void handleObserverEvent(observerEvent e) {
         ctrObservation++;
         if (numberOfPackageInBuffer == 0) ctrIdle++;
+        totalBufferSize+=numberOfPackageInBuffer;
     }
 
     private void handleArrivalEvent(arrivalEvent e) {
@@ -77,7 +79,6 @@ public class simulator {
             //no buffer limit
             addDepartureEvent(e);
             numberOfPackageInBuffer++;
-            totalBufferSize+=numberOfPackageInBuffer;
         } else {
             if (numberOfPackageInBuffer >= bufferSize) {
                 ctrDropped++;
@@ -85,7 +86,6 @@ public class simulator {
             } else {
                 addDepartureEvent(e);
                 numberOfPackageInBuffer++;
-                totalBufferSize+=numberOfPackageInBuffer;
             }
         }
     }
@@ -96,15 +96,18 @@ public class simulator {
     }
 
     private void addDepartureEvent(arrivalEvent e) {
-        departureEvent event = 
-            new departureEvent(
-                (e.getTimeStamp() + (double)e.packetSize / (double)tranmissionRate)
-            );
-        eventQueue.add(event);
+        double deltaTime = (double)e.packetSize / (double)tranmissionRate;
+        lastPacketDepartureTime += deltaTime;
+
+        if (numberOfPackageInBuffer == 0) {
+            lastPacketDepartureTime = e.getTimeStamp() + deltaTime;
+        }
+
+        eventQueue.add(new departureEvent(lastPacketDepartureTime));
     }
 
     private void report() {
-        //System.out.println();
+        // System.out.println();
         // System.out.println("Arrival counter: " + ctrArrival);
         // System.out.println("Departure counter: " + ctrDeparture);
         // System.out.println("Observation counter: " + ctrObservation);
@@ -120,6 +123,8 @@ public class simulator {
     private void reset() {
         numberOfPackageInBuffer = 0;
         totalBufferSize = 0;
+
+        lastPacketDepartureTime = 0.00;
         
         ctrArrival = 0;
         ctrDeparture = 0;
