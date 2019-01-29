@@ -15,7 +15,7 @@ public class simulator {
     private int runtime;
 
     private int numberOfPackageInBuffer;
-    private int totalBufferSize;
+    private long totalBufferSize;
     private Boolean debug = false;
     private double lastPacketDepartureTime;
 
@@ -115,8 +115,9 @@ public class simulator {
         // System.out.println("Packet dropped counter: " + ctrDropped);
         // System.out.println("Packet generated counter: " + ctrPacketGenerated);
         // System.out.println("TotalBufferSize: " + totalBufferSize);
-        System.out.println("Average number of packets: " + (double)totalBufferSize/ctrObservation);
-        System.out.println("Portion of idle time: " + (double)ctrIdle/ctrObservation);
+        System.out.println("Avg # of packets: " + (float)totalBufferSize/ctrObservation);
+        System.out.println("P(idle): " + (double)ctrIdle/ctrObservation);
+        System.out.println("P(loss): " + (double)ctrDropped/ctrArrival);
 
     }
 
