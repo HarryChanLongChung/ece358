@@ -1,6 +1,9 @@
 package tests;
 
 import lab01.simulator;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 
 public class testsForSimulator {
 
@@ -13,6 +16,11 @@ public class testsForSimulator {
         double maxP = Double.parseDouble(args[5]);
         double step = Double.parseDouble(args[6]);
 
+        double[] avgNumberOfPackage = new double[(int)((maxP - minP)/step + 2)];
+        double[] pIdel = new double[(int)((maxP - minP)/step + 2)];
+        double[] pLoss = new double[(int)((maxP - minP)/step + 2)];
+        int crt = 0;
+
         simulator sim = new simulator(0, C, L, 0.00, 0.00, 0);
 
         for (double p = minP; p <= maxP; p+=step) {
@@ -20,20 +28,36 @@ public class testsForSimulator {
             System.out.println("p: " + p + ", arrival rate: " + arrivalRate);
             sim.reset(buffersize, C, L, arrivalRate, arrivalRate*15, runtime);
             sim.initialize();
-            sim.run();
-            System.out.println();
+            sim.run(false);
+
+            avgNumberOfPackage[crt] = sim.getAvgPacketInQueue();
+            pIdel[crt] = sim.getIdlePortion();
+            pLoss[crt] = sim.getLossPortion();
+            crt++;
         }
-
-        // System.out.println("Double time frame");
-
-        // for (double p = 0.25; p <= 0.95; p+=0.1) {
-        //     double arrivalRate = p*C/L;
-        //     System.out.println("p: " + p + ", arrival rate: " + arrivalRate);
-        //     sim.reset(10, C, L, arrivalRate, arrivalRate*10, 2000);
-        //     sim.initialize();
-        //     sim.run();
-        //     System.out.println();
-        // }
-
+        PrintWriter pw;
+        StringBuilder sb = new StringBuilder();
+        try {
+            pw = new PrintWriter(new File(args[7]));
+            sb.append("p, avgNumberOfPackage, pIdel, pLoss,\n");
+            crt = 0;
+            for (double p = minP; p <= maxP; p+=step) {
+                sb.append(p);
+                sb.append(',');
+                sb.append(avgNumberOfPackage[crt]);
+                sb.append(',');
+                sb.append(pIdel[crt]);
+                sb.append(',');
+                sb.append(pLoss[crt]);
+                sb.append(',');
+                sb.append('\n');
+                crt++;
+            }
+        
+            pw.write(sb.toString());
+            pw.close();
+        } catch (Exception e) {
+            System.out.println("ERROR: cannot open target file");
+        }
     }
 }

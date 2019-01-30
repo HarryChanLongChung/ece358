@@ -13,5 +13,6 @@ clean:
 	$(RM) *.class
 	$(RM) -rf build/*
 	$(RM) src/tests/*.class
+	$(RM) *.csv
 
 # java -cp "src/:./build/lab01.jar:build/" tests.testsForSimulator

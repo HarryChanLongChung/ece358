@@ -41,7 +41,7 @@ public class simulator {
         eventQueue.addAll(arrivalList);
     }
 
-    public void run() {
+    public void run(Boolean report) {
         while (!eventQueue.isEmpty()) {
             simulatedEvent e = eventQueue.remove();
             switch (e.getEventType()) {
@@ -64,7 +64,7 @@ public class simulator {
             if (debug) System.out.print(e.getTimeStamp() + "(" + numberOfPackageInBuffer + ")");
             if (debug) System.out.println();
         }
-        report();
+        if (report) report();
     }
 
     private void handleObserverEvent(observerEvent e) {
@@ -119,6 +119,18 @@ public class simulator {
         System.out.println("P(idle): " + (double)ctrIdle/ctrObservation);
         System.out.println("P(loss): " + (double)ctrDropped/ctrArrival);
 
+    }
+
+    public double getAvgPacketInQueue() {
+        return (float)totalBufferSize/ctrObservation;
+    }
+
+    public double getIdlePortion() {
+        return (float)ctrIdle/ctrObservation;
+    }
+
+    public double getLossPortion() {
+        return (float)ctrDropped/ctrArrival;
     }
 
     private void reset() {
