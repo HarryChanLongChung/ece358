@@ -15,4 +15,6 @@ clean:
 	$(RM) src/tests/*.class
 	$(RM) *.csv
 
-# java -cp "src/:./build/lab01.jar:build/" tests.testsForSimulator
+run: 
+	# java -cp "src/:./build/lab01.jar:build/" tests.testsForSimulator {bufferSize C L duration min_p max_p step_p output_csv_name} 
+	java -cp "src/:./build/lab01.jar:build/" tests.testsForSimulator 0 1000000 2000 1000 0.25 0.95 0.1 test.csv
