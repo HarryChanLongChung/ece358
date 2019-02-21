@@ -1,8 +1,23 @@
 package lab02;
-import lab01.arrivalEvent;
+
+import common.*;
+
 import java.util.PriorityQueue;
+import java.util.List;
 
 public class node {
-    private PriorityQueue<arrivalEvent> eventQueue;
+    public PriorityQueue<arrivalEvent> eventQueue;
+    private int collisionCrt;
+
+    public node(double arrivalRate, int rt, int packetSize) {
+        List<arrivalEvent> list 
+            = utilities.generateArrivalEvents(rt, arrivalRate, packetSize);
+        eventQueue.addAll(list);
+        collisionCrt = 0;
+    }
+
+    public expoBackOff() {
+    }
+
     
 }
