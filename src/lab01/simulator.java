@@ -2,6 +2,7 @@ package lab01;
 
 import java.util.PriorityQueue;
 import java.util.List;
+import common.*;
 
 public class simulator {
     private PriorityQueue<simulatedEvent> eventQueue;

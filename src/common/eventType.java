@@ -1,4 +1,4 @@
-package lab01;
+package common;
 
 public enum eventType{
     OBSERVER, ARRIVAL, DEPARTURE;

@@ -1,4 +1,4 @@
-package lab01;
+package common;
 
 public interface simulatedEvent {
     public eventType getEventType();

@@ -16,4 +16,4 @@ java -cp "src/:./build/lab01.jar:build/" tests.testsForSimulator {bufferSize C L
 ```
 3. See the output result in the .csv file
 
-! Please include the .csv file extension when providing the output_csv_name.
+! Please include the .csv file extension when providing the output_csv_name.s

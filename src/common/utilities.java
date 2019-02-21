@@ -1,4 +1,4 @@
-package lab01;
+package common;
 
 import java.util.Random;
 import java.util.PriorityQueue;
@@ -36,5 +36,9 @@ public class utilities {
 
     public static PriorityQueue<simulatedEvent> getNewEventQueue(int cap) {
         return new PriorityQueue<simulatedEvent>(cap, new simulatedEventComparator());
+    }
+
+    public static PriorityQueue<arrivalEvent> getNewArrivalEventQueue(int cap) {
+        return new PriorityQueue<arrivalEvent>(cap, new simulatedEventComparator());
     }
 }

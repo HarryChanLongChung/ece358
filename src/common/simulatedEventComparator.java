@@ -1,4 +1,4 @@
-package lab01;
+package common;
 
 import java.util.Comparator;
 

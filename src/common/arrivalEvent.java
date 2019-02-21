@@ -1,4 +1,4 @@
-package lab01;
+package common;
 
 public class arrivalEvent implements simulatedEvent{
     public eventType et = eventType.ARRIVAL;
