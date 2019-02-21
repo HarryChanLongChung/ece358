@@ -21,11 +21,16 @@ public class node {
 
     public void expoBackOff() {
     	collisionCrt++;
-    	if (collisionCrt>=10) {
-    		//collisionCrt = 0; I dunno if i have to do 
+    	if (collisionCrt > 10) {
+    	eventQueue.remove();
+        collisionCrt = 0;
     	} else {
     		r=  (int) (Math.random()* (Math.pow(2,collisionCrt)-1));
-    		timeDelay = (double) r * TIME_P;
+    		timeDelay = (double) r * TIME_P *1000; //timeDelay in miliseconds
+    	    try{
+    	        Thread.sleep((long) (timeDelay)); //waits for timeDelay seconds
+    	     }catch(InterruptedException e){}
+    		
     	}
     	
     	
