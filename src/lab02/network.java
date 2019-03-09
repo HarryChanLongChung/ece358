@@ -13,15 +13,18 @@ public class network {
     private boolean isPresistent = false;
     private node[] nodes;
     private PriorityQueue<observerEvent> eventQueue;
-    private PriorityQueue<Double> arrivalEvents;
+    private PriorityQueue<Double> arrivalEventsTimeStamp;
 
     private int crtTransmittedPkg = 0;
     private int crtSuccessfulTransmittedPkg = 0;
-    private int rt = 0;//time simulation 
+    private int simulationTime;//time simulation 
+    private int avgPacketLength;
 
 
     public network(int N, double arrivalRate, int R, int packetLength, boolean persistent, int rt) {
         isPresistent = persistent;
+        simulationTime = rt;
+        avgPacketLength = packetLength;
         // setup observer event
         List<observerEvent> observerList 
             = utilities.generateObserverEvents(rt, arrivalRate*15);
@@ -39,7 +42,7 @@ public class network {
     public void run(){
         // Pick the lastest event
         for (node n : nodes) {
-            arrivalEvents = n.getLastestEvent();
+            arrivalEventsTimeStamp.add(n.getLastestEventTimeStamp());
         }
 
         // Detect collision
@@ -50,11 +53,11 @@ public class network {
         	crtSuccessfulTransmittedPkg ++;
             double waitTime = 0.0;
             for (node n : nodes) {
-                if (n.getLastestEvent().timestamp > waitTime) {
+                if (n.getLastestEventTimeStamp() > waitTime) {
                     if (isPresistent) {
                         n.randomWait(waitTime);
                     } else {
-                        arrivalEvents = n.notifyWaitTime(waitTime);
+                        n.notifyWaitTime(waitTime);
                     }
                 }
             }
@@ -66,17 +69,17 @@ public class network {
         }
     }
 
-    public void collisionDetection() {
+    public List<node> collisionDetection() {
 
     }
     
-    public double efficiency(int crtTransmittedPkg, int crtSuccessfulTransmittedPkg) {
-    	return crtSuccessfulTransmittedPkg/crtTransmittedPkg;
+    public double genereateEfficiency() {
+    	return crtSuccessfulTransmittedPkg / crtTransmittedPkg;
 
     }
 
-    public double throughput(int crtSuccessfulTransmittedPkg,int avgPacketSize) {
-    	return (crtSuccessfulTransmittedPkg*avgPacketSize)/rt; //double check line 20 and 50 if u agree w it cuz it was the only way to get rt here wout getting an error
+    public double calculateThroughput() {
+    	return (crtSuccessfulTransmittedPkg * avgPacketLength) / simulationTime;
     }
     
 }

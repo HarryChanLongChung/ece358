@@ -12,4 +12,7 @@ public class arrivalEvent implements simulatedEvent{
 
     public eventType getEventType() {return et;}
     public double getTimeStamp() {return timestamp;}
+    public void updateTimeStamp(double time) {
+        timestamp = time;
+    }
 }
