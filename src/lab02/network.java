@@ -17,7 +17,7 @@ public class network {
 
     private int crtTransmittedPkg = 0;
     private int crtSuccessfulTransmittedPkg = 0;
-    
+    private int rt = 0;//time simulation 
 
 
     public network(int N, double arrivalRate, int R, int packetLength, boolean persistent, int rt) {
@@ -68,4 +68,14 @@ public class network {
     public void collisionDetection() {
 
     }
+    
+    public double efficiency(int crtTransmittedPkg, int crtSuccessfulTransmittedPkg) {
+    	return crtSuccessfulTransmittedPkg/crtTransmittedPkg;
+
+    }
+
+    public double throughput(int crtSuccessfulTransmittedPkg,int avgPacketSize) {
+    	return (crtSuccessfulTransmittedPkg*avgPacketSize)/rt; //double check line 20 if u agree w it cuz it was the only way to get rt here wout getting an error
+    }
+    
 }
