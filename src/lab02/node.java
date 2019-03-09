@@ -30,11 +30,18 @@ public class node {
     	    try{
     	        Thread.sleep((long) (timeDelay)); //waits for timeDelay seconds
     	     }catch(InterruptedException e){}
-    		
     	}
-    	
-    	
     }
 
-    
+    public arrivalEvent getLastestEvent() {
+
+    }
+
+    public void randomWait(double waitTime) {
+
+    }
+
+    public void notifyWaitTime(double waitTime) {
+
+    }
 }
