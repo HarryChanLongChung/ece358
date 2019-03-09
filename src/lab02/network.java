@@ -47,6 +47,7 @@ public class network {
 
         if (collideNodes.isEmpty()) {
             // no collision
+        	crtSuccessfulTransmittedPkg ++;
             double waitTime = 0.0;
             for (node n : nodes) {
                 if (n.getLastestEvent().timestamp > waitTime) {
@@ -75,7 +76,7 @@ public class network {
     }
 
     public double throughput(int crtSuccessfulTransmittedPkg,int avgPacketSize) {
-    	return (crtSuccessfulTransmittedPkg*avgPacketSize)/rt; //double check line 20 if u agree w it cuz it was the only way to get rt here wout getting an error
+    	return (crtSuccessfulTransmittedPkg*avgPacketSize)/rt; //double check line 20 and 50 if u agree w it cuz it was the only way to get rt here wout getting an error
     }
     
 }
