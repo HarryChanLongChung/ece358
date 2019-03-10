@@ -2,12 +2,21 @@ JFLAGS = -g
 JC = javac
 JAR = jar
 
-default: classes
+default: common_classes
 
-classes:
-	$(JC) -d ./build src/lab01/*
+common_classes:
+	$(JC) -d ./build src/common/*
+	$(JAR) cvf ./build/common.jar ./build/common/*
+
+lab01_classes:
+	$(JC) -cp "src/:./build/common.jar:build/" -d ./build src/lab01/*
 	$(JAR) cvf ./build/lab01.jar ./build/lab01/*
 	$(JC) -cp "src/:./build/lab01.jar:build/" src/tests/testsForSimulator.java
+
+lab02_classes:
+	$(JC) -cp "src/:./build/common.jar:build/" -d ./build src/lab02/*
+	$(JAR) cvf ./build/lab02.jar ./build/lab02/*
+	$(JC) -cp "src/:./build/lab02.jar:build/" src/tests/testsForNode.java
 
 clean:
 	$(RM) *.class
@@ -15,6 +24,9 @@ clean:
 	$(RM) src/tests/*.class
 	$(RM) *.csv
 
-run: 
+run_lab01: 
 	# java -cp "src/:./build/lab01.jar:build/" tests.testsForSimulator {bufferSize C L duration min_p max_p step_p output_csv_name} 
 	java -cp "src/:./build/lab01.jar:build/" tests.testsForSimulator 0 1000000 2000 1000 0.25 0.95 0.1 test.csv
+
+run_lab02: 
+	java -cp "src/:./build/lab02.jar:build/" tests.testsForNode

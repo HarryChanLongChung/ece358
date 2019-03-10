@@ -2,6 +2,7 @@ package lab02;
 
 import java.util.PriorityQueue;
 import java.util.List;
+import java.util.Collections;
 
 import common.*;
 
@@ -70,7 +71,8 @@ public class network {
     }
 
     public List<node> collisionDetection() {
-
+        List<node> updatedEvents = Collections.emptyList();
+        return updatedEvents;
     }
     
     public double genereateEfficiency() {

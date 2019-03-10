@@ -39,7 +39,7 @@ public class utilities {
     }
 
     public static PriorityQueue<arrivalEvent> getNewArrivalEventQueue(int cap) {
-        return new PriorityQueue<arrivalEvent>(cap, new simulatedEventComparator());
+        return new PriorityQueue<arrivalEvent>(cap, new arrivalEventComparator());
     }
 
     public static PriorityQueue<observerEvent> getNewObserverEventQueue(int cap) {

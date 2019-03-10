@@ -1,12 +1,13 @@
 package lab02;
 
 import common.*;
-import sun.print.resources.serviceui_ja;
 
 import java.util.PriorityQueue;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+
 
 public class node {
     // TIME_P = 512 * (1 / R)
@@ -22,6 +23,8 @@ public class node {
     public node(double arrivalRate, int rt, int packetSize) {
         List<arrivalEvent> list 
             = utilities.generateArrivalEvents(rt, arrivalRate, packetSize);
+        eventQueue 
+            = utilities.getNewArrivalEventQueue(list.size());
         eventQueue.addAll(list);
         collisionCrt = 0;
     }
@@ -40,14 +43,17 @@ public class node {
         Random rand = new Random();
         double backoffTime = rand.nextDouble() * (Math.pow(2, collisionCrt) - 1) * TIME_P;
         double minWaitTime = getLastestEventTimeStamp() + backoffTime;
-        List<arrivalEvent> updatedEvents = Collections.emptyList();
+        System.out.println("min: "+minWaitTime);
+        ArrayList<arrivalEvent> updatedEvents = new ArrayList<arrivalEvent>();
 
         double nextTimeStamp = eventQueue.peek().timestamp;
-        while (nextTimeStamp < minWaitTime) {
+        while (nextTimeStamp < minWaitTime && !eventQueue.isEmpty()) {
+            System.out.println("next_st: "+nextTimeStamp);
             arrivalEvent e = eventQueue.remove();
             e.updateTimeStamp(minWaitTime);
             updatedEvents.add(e);
             minWaitTime += TIME_BIT;
+            nextTimeStamp = eventQueue.peek().timestamp;
         }
 
         eventQueue.addAll(updatedEvents);
@@ -63,5 +69,24 @@ public class node {
 
     public void notifyWaitTime(double waitTime) {
 
+    }
+
+    public void print() {
+        for (arrivalEvent e : eventQueue) {
+            System.out.println(e.timestamp + "" + e.packetSize);
+        }
+        System.out.println(eventQueue.size());
+    }
+
+    public void verify() {
+        double lastTS = -1.0;
+        double newTS;
+        while (!eventQueue.isEmpty()) {
+            newTS = eventQueue.remove().timestamp;
+            if(newTS < lastTS){
+                System.out.println("STH is wrong");
+            }
+            lastTS = newTS;
+        }
     }
 }
