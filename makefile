@@ -33,4 +33,5 @@ cp_lab02:
 	make lab02_classes
 
 run_lab02: 
-	java -cp "src/:./build/lab02.jar:build/" tests.testsForNetwork 
+	# java -cp "src/:./build/lab02.jar:build/" tests.testsForNetwork {isPresistent output_csv_name} 
+	java -cp "src/:./build/lab02.jar:build/" tests.testsForNetwork false test_np.csv

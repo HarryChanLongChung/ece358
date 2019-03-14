@@ -15,25 +15,27 @@ public class network {
 
     private int crtTransmittedPkg = 0;
     private int crtSuccessfulTransmittedPkg = 0;
-    private int simulationTime;//time simulation 
     private int avgPacketLength;
+    private double lastEventTs;
 
 
     public network(int N, double arrivalRate, int packetLength, boolean persistent, int rt) {
         isPresistent = persistent;
-        simulationTime = rt;
         avgPacketLength = packetLength;
 
+        int totalPkg = 0;
         // setup all node
         nodes = new node[N];
         for (int i = 0; i < N; i++) {
             nodes[i] = new node(arrivalRate, rt, packetLength);
+            totalPkg += nodes[i].getQueueSize();
         }
-
+        System.out.print(" totalpkg = " + totalPkg);
         arrivalEvents = new PriorityQueue<nodeTimeStamp>(N, new nodeTimeStampComparator());
     }
 
     public void run(){
+        lastEventTs = 0.00;
         // Pick the lastest event
         for (int i = 0; i < nodes.length; i++) {
             double ts = nodes[i].getLastestEventTimeStamp();
@@ -74,7 +76,6 @@ public class network {
                     }
                 }
             } else {
-                //System.out.println("collision happen");
                 // collision happen
                 for (nodeTimeStamp nts : collideNts) {
                     int nodePos = nts.getNodePos();
@@ -92,11 +93,10 @@ public class network {
 
     public List<nodeTimeStamp> collisionDetection() {
         nodeTimeStamp lastestEvent = arrivalEvents.peek();
+        lastEventTs = lastestEvent.getTimeStamp();
         List<nodeTimeStamp> collideNts = new ArrayList<nodeTimeStamp>();
-        //System.out.println("min.ts: " + lastestEvent.getTimeStamp());
         for (nodeTimeStamp e : arrivalEvents) {
             double delay = PROP_DELAY_PER_NODE * (double) Math.abs(lastestEvent.nodePos - e.nodePos);
-            //System.out.println("e.ts: " + e.getTimeStamp() + ", min.ts: " + (lastestEvent.getTimeStamp() + delay));
             if (e.getTimeStamp() <= (lastestEvent.getTimeStamp() + delay)){
                 collideNts.add(e);
             }
@@ -106,11 +106,21 @@ public class network {
     
     public double genereateEfficiency() {
     	return (double) crtSuccessfulTransmittedPkg / crtTransmittedPkg;
-
     }
 
     public double calculateThroughput() {
-    	return (double) (crtSuccessfulTransmittedPkg * avgPacketLength) / simulationTime;
+    	return  ((double)crtSuccessfulTransmittedPkg * avgPacketLength) / lastEventTs;
     }
-    
+
+    public int getSuccessfulTransmitted() {
+    	return crtSuccessfulTransmittedPkg;
+    }
+
+    public int getTotalTransmitted() {
+    	return crtTransmittedPkg;
+    }
+
+    public double getLastTimeStamp() {
+    	return lastEventTs;
+    }
 }

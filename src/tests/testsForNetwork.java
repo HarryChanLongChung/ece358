@@ -1,18 +1,45 @@
 package tests;
 
 import lab02.*;
+import java.io.File;
+import java.io.PrintWriter;
 
 public class testsForNetwork {
     public static void main(String[] args) {
-        int numberOfNodes = Integer.parseInt(args[0]);
-        double arrivalRate = Double.parseDouble(args[1]);
-        boolean presistent = Boolean.parseBoolean(args[2]);
-        int simulationTime = Integer.parseInt(args[3]);
+        StringBuilder sb = new StringBuilder();
 
-        network simulation = new network(numberOfNodes, arrivalRate, 1500, presistent, simulationTime);
-        // network simulation = new network(20, 7, 1500, true, 1000);
-        simulation.run();
-        System.out.println("Efficiency: " + simulation.genereateEfficiency());
-        System.out.println("Throughput: " + simulation.calculateThroughput());
+        boolean isPresistent = Boolean.parseBoolean(args[0]);
+
+        int nodeNumbers[] = {20, 40, 60, 80, 100};
+        double arrivalRates[] = {7.0, 10.0, 20.0};
+
+        sb.append("arrivalRate, nodeNumber, efficiency, throughput,\n");
+        for (double ar : arrivalRates) {
+            sb.append(ar);
+            for (int node : nodeNumbers) {
+                System.out.print("Arrival Rate: " + ar + " Node Number: " + node);
+                
+                network simulation = new network(node, ar, 1500, isPresistent, 100);
+                simulation.run();
+
+                System.out.println("  ... DONE!! " + simulation.getSuccessfulTransmitted() + ", " + simulation.getTotalTransmitted() + ", " + simulation.getLastTimeStamp());
+
+                sb.append(',');
+                sb.append(node);
+                sb.append(',');
+                sb.append(simulation.genereateEfficiency());
+                sb.append(',');
+                sb.append(simulation.calculateThroughput());
+                sb.append(",\n");
+            }
+        }
+
+        try {
+            PrintWriter pw = new PrintWriter(new File(args[1]));
+            pw.write(sb.toString());
+            pw.close();
+        } catch (Exception e) {
+            System.out.println("ERROR: cannot open target file");
+        }
     }
 }

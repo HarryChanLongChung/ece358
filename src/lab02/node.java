@@ -15,6 +15,7 @@ public class node {
     
     private PriorityQueue<arrivalEvent> eventQueue;
     private int collisionCrt;
+    private int waitBackOffCrt;
 
     int r = 0;
     double timeDelay = 0.0;
@@ -26,21 +27,23 @@ public class node {
             = utilities.getNewArrivalEventQueue(list.size());
         eventQueue.addAll(list);
         collisionCrt = 0;
+        waitBackOffCrt = 0;
     }
 
     public void handleCollision() {
         collisionCrt++;
+        waitBackOffCrt = 0;
     	if (collisionCrt >= 10 && !eventQueue.isEmpty()) {
     	    eventQueue.remove();
             collisionCrt = 0;
     	} else {
-            expoBackOff();
+            expoBackOff(collisionCrt);
     	}
     }
 
-    public void expoBackOff() {
+    public void expoBackOff(int counter) {
         Random rand = new Random();
-        double backoffTime = rand.nextDouble() * (Math.pow(2, collisionCrt) - 1) * TIME_P;
+        double backoffTime = rand.nextDouble() * (Math.pow(2, counter) - 1) * TIME_P;
         double minWaitTime = getLastestEventTimeStamp() + backoffTime;
 
         reorganizeEventQueue(minWaitTime);
@@ -51,7 +54,16 @@ public class node {
     }
 
     public void randomWait(double waitTime) {
-        expoBackOff();
+        waitBackOffCrt++;
+        if (waitBackOffCrt >= 10 && !eventQueue.isEmpty()) {
+            eventQueue.remove();
+            waitBackOffCrt = 0;
+        } else {
+            expoBackOff(waitBackOffCrt);
+            if(getLastestEventTimeStamp() < waitTime) {
+                randomWait(waitTime);
+            }
+        }
     }
 
     public void notifyWaitTime(double waitTime, boolean isPresistent) {
@@ -59,7 +71,7 @@ public class node {
         if (isPresistent) {
             reorganizeEventQueue(waitTime);
         } else {
-            expoBackOff();
+            randomWait(waitTime);
         }
     }
 
@@ -68,6 +80,7 @@ public class node {
         if (eventQueue.isEmpty()) return;
     	eventQueue.remove();
         collisionCrt = 0;
+        waitBackOffCrt = 0;
     }
 
     private void reorganizeEventQueue(double minWaitTime) {
@@ -91,5 +104,9 @@ public class node {
             System.out.println(e.timestamp + "" + e.packetSize);
         }
         System.out.println(eventQueue.size());
+    }
+
+    public int getQueueSize() {
+        return eventQueue.size();
     }
 }
