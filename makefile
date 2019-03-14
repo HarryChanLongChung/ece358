@@ -5,7 +5,7 @@ JAR = jar
 default: common_classes
 
 common_classes:
-	$(JC) -d ./build src/common/*
+	$(JC) -O -d ./build src/common/*
 	$(JAR) cvf ./build/common.jar ./build/common/*
 
 lab01_classes:
@@ -14,9 +14,9 @@ lab01_classes:
 	$(JC) -cp "src/:./build/lab01.jar:build/" src/tests/testsForSimulator.java
 
 lab02_classes:
-	$(JC) -cp "src/:./build/common.jar:build/" -d ./build src/lab02/*
+	$(JC) -O -cp "src/:./build/common.jar:build/" -d ./build src/lab02/*
 	$(JAR) cvf ./build/lab02.jar ./build/lab02/*
-	$(JC) -cp "src/:./build/lab02.jar:build/" src/tests/testsForNetwork.java
+	$(JC) -O -cp "src/:./build/lab02.jar:build/" src/tests/testsForNetwork.java
 
 clean:
 	$(RM) *.class

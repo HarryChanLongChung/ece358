@@ -66,7 +66,7 @@ public class network {
                     } else {
                         // other nodes
                         double nextTs = nodes[i].getLastestEventTimeStamp();
-                        if (nextTs <= successNodeTs.getTimeStamp() + delay && nextTs != -1) {
+                        if (nextTs <= successNodeTs.getTimeStamp() + delay && nextTs >= 0) {
                             arrivalEvents.remove(new nodeTimeStamp(nextTs, i));
                             nodes[i].notifyWaitTime(successNodeTs.getTimeStamp() + delay, isPresistent);
                             arrivalEvents.add(new nodeTimeStamp(nodes[i].getLastestEventTimeStamp(), i));
@@ -80,7 +80,10 @@ public class network {
                     int nodePos = nts.getNodePos();
                     arrivalEvents.remove(new nodeTimeStamp(nts.getTimeStamp(), nodePos));
                     nodes[nodePos].handleCollision();
-                    arrivalEvents.add(new nodeTimeStamp(nodes[nodePos].getLastestEventTimeStamp(), nodePos));
+                    double newTs = nodes[nodePos].getLastestEventTimeStamp();
+                    if(newTs > 0) {
+                        arrivalEvents.add(new nodeTimeStamp(newTs, nodePos));
+                    }
                     crtTransmittedPkg ++;
                 }
             }
@@ -96,7 +99,6 @@ public class network {
             //System.out.println("e.ts: " + e.getTimeStamp() + ", min.ts: " + (lastestEvent.getTimeStamp() + delay));
             if (e.getTimeStamp() <= (lastestEvent.getTimeStamp() + delay)){
                 collideNts.add(e);
-                //System.out.println("collision!!");
             }
         }
         return collideNts;
