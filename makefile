@@ -16,7 +16,7 @@ lab01_classes:
 lab02_classes:
 	$(JC) -cp "src/:./build/common.jar:build/" -d ./build src/lab02/*
 	$(JAR) cvf ./build/lab02.jar ./build/lab02/*
-	$(JC) -cp "src/:./build/lab02.jar:build/" src/tests/testsForNode.java
+	$(JC) -cp "src/:./build/lab02.jar:build/" src/tests/testsForNetwork.java
 
 clean:
 	$(RM) *.class
@@ -28,5 +28,9 @@ run_lab01:
 	# java -cp "src/:./build/lab01.jar:build/" tests.testsForSimulator {bufferSize C L duration min_p max_p step_p output_csv_name} 
 	java -cp "src/:./build/lab01.jar:build/" tests.testsForSimulator 0 1000000 2000 1000 0.25 0.95 0.1 test.csv
 
+cp_lab02:
+	make common_classes 
+	make lab02_classes
+
 run_lab02: 
-	java -cp "src/:./build/lab02.jar:build/" tests.testsForNode
+	java -cp "src/:./build/lab02.jar:build/" tests.testsForNetwork 

@@ -4,7 +4,6 @@ import common.*;
 
 import java.util.PriorityQueue;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
@@ -22,7 +21,7 @@ public class node {
 
     public node(double arrivalRate, int rt, int packetSize) {
         List<arrivalEvent> list 
-            = utilities.generateArrivalEvents(rt, arrivalRate, packetSize);
+            = utilities.generateArrivalEventsFixedSize(rt, arrivalRate, packetSize);
         eventQueue 
             = utilities.getNewArrivalEventQueue(list.size());
         eventQueue.addAll(list);
@@ -31,7 +30,7 @@ public class node {
 
     public void handleCollision() {
         collisionCrt++;
-    	if (collisionCrt > 10) {
+    	if (collisionCrt >= 10 && !eventQueue.isEmpty()) {
     	    eventQueue.remove();
             collisionCrt = 0;
     	} else {
@@ -43,20 +42,8 @@ public class node {
         Random rand = new Random();
         double backoffTime = rand.nextDouble() * (Math.pow(2, collisionCrt) - 1) * TIME_P;
         double minWaitTime = getLastestEventTimeStamp() + backoffTime;
-        System.out.println("min: "+minWaitTime);
-        ArrayList<arrivalEvent> updatedEvents = new ArrayList<arrivalEvent>();
 
-        double nextTimeStamp = eventQueue.peek().timestamp;
-        while (nextTimeStamp < minWaitTime && !eventQueue.isEmpty()) {
-            System.out.println("next_st: "+nextTimeStamp);
-            arrivalEvent e = eventQueue.remove();
-            e.updateTimeStamp(minWaitTime);
-            updatedEvents.add(e);
-            minWaitTime += TIME_BIT;
-            nextTimeStamp = eventQueue.peek().timestamp;
-        }
-
-        eventQueue.addAll(updatedEvents);
+        reorganizeEventQueue(minWaitTime);
     }
 
     public double getLastestEventTimeStamp() {
@@ -64,11 +51,39 @@ public class node {
     }
 
     public void randomWait(double waitTime) {
-
+        expoBackOff();
     }
 
-    public void notifyWaitTime(double waitTime) {
+    public void notifyWaitTime(double waitTime, boolean isPresistent) {
+        if (eventQueue.isEmpty()) return;
+        if (isPresistent) {
+            reorganizeEventQueue(waitTime);
+        } else {
+            expoBackOff();
+        }
+    }
 
+
+    public void successfulTranmission() {
+        if (eventQueue.isEmpty()) return;
+    	eventQueue.remove();
+        collisionCrt = 0;
+    }
+
+    private void reorganizeEventQueue(double minWaitTime) {
+        ArrayList<arrivalEvent> updatedEvents = new ArrayList<arrivalEvent>();
+
+        for (int i = 0; i < eventQueue.size(); i++) {
+            double nextTimeStamp = eventQueue.peek().timestamp;
+            if (nextTimeStamp < minWaitTime) {
+                arrivalEvent e = eventQueue.remove();
+                e.updateTimeStamp(minWaitTime);
+                updatedEvents.add(e);
+                minWaitTime += TIME_BIT;
+            }
+        }
+
+        eventQueue.addAll(updatedEvents);
     }
 
     public void print() {
@@ -76,17 +91,5 @@ public class node {
             System.out.println(e.timestamp + "" + e.packetSize);
         }
         System.out.println(eventQueue.size());
-    }
-
-    public void verify() {
-        double lastTS = -1.0;
-        double newTS;
-        while (!eventQueue.isEmpty()) {
-            newTS = eventQueue.remove().timestamp;
-            if(newTS < lastTS){
-                System.out.println("STH is wrong");
-            }
-            lastTS = newTS;
-        }
     }
 }

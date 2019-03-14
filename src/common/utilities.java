@@ -34,6 +34,17 @@ public class utilities {
         return events;
     }
 
+    public static List<arrivalEvent> generateArrivalEventsFixedSize(int maxTime, double rate, int packetSize) {
+        List<arrivalEvent> events = new ArrayList<arrivalEvent>();
+        double ctr = 0;
+        
+        while (ctr <= maxTime) {
+            ctr += getNextExpoRandomVariable(rate);
+        	events.add(new arrivalEvent(ctr, packetSize));
+        }
+        return events;
+    }
+
     public static PriorityQueue<simulatedEvent> getNewEventQueue(int cap) {
         return new PriorityQueue<simulatedEvent>(cap, new simulatedEventComparator());
     }

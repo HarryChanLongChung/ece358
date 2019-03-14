@@ -1,20 +1,17 @@
 package lab02;
 
 import java.util.PriorityQueue;
-import java.util.List;
-import java.util.Collections;
 
-import common.*;
+import java.util.List;
+import java.util.ArrayList;
 
 public class network {
-    private static int D = 10;
-    private static int S_PROP = 200000000;
-    private static double T_PROP = 5e-7;
+    private static double PROP_DELAY_PER_NODE = 5e-8;
+    private static double TRANS_DELAY = 1.5e-3;
 
     private boolean isPresistent = false;
     private node[] nodes;
-    private PriorityQueue<observerEvent> eventQueue;
-    private PriorityQueue<Double> arrivalEventsTimeStamp;
+    private PriorityQueue<nodeTimeStamp> arrivalEvents;
 
     private int crtTransmittedPkg = 0;
     private int crtSuccessfulTransmittedPkg = 0;
@@ -22,66 +19,96 @@ public class network {
     private int avgPacketLength;
 
 
-    public network(int N, double arrivalRate, int R, int packetLength, boolean persistent, int rt) {
+    public network(int N, double arrivalRate, int packetLength, boolean persistent, int rt) {
         isPresistent = persistent;
         simulationTime = rt;
         avgPacketLength = packetLength;
-        // setup observer event
-        List<observerEvent> observerList 
-            = utilities.generateObserverEvents(rt, arrivalRate*15);
-        eventQueue 
-            = utilities.getNewObserverEventQueue(observerList.size());
-        eventQueue.addAll(observerList);
 
         // setup all node
         nodes = new node[N];
         for (int i = 0; i < N; i++) {
             nodes[i] = new node(arrivalRate, rt, packetLength);
         }
+
+        arrivalEvents = new PriorityQueue<nodeTimeStamp>(N, new nodeTimeStampComparator());
     }
 
     public void run(){
         // Pick the lastest event
-        for (node n : nodes) {
-            arrivalEventsTimeStamp.add(n.getLastestEventTimeStamp());
+        for (int i = 0; i < nodes.length; i++) {
+            double ts = nodes[i].getLastestEventTimeStamp();
+            if (ts != -1) {
+                arrivalEvents.add(new nodeTimeStamp(ts, i));
+            }
         }
 
-        // Detect collision
-        List<node> collideNodes = collisionDetection();
+        while (!arrivalEvents.isEmpty()) {
+            // Detect collision
+            List<nodeTimeStamp> collideNts = collisionDetection();
 
-        if (collideNodes.isEmpty()) {
-            // no collision
-        	crtSuccessfulTransmittedPkg ++;
-            double waitTime = 0.0;
-            for (node n : nodes) {
-                if (n.getLastestEventTimeStamp() > waitTime) {
-                    if (isPresistent) {
-                        n.randomWait(waitTime);
+            if (collideNts.size() == 1) {
+                // no collision
+                crtSuccessfulTransmittedPkg++;
+                crtTransmittedPkg++;
+                nodeTimeStamp successNodeTs = arrivalEvents.remove();
+
+                for (int i = 0; i < nodes.length; i++) {
+                    double delay = TRANS_DELAY + PROP_DELAY_PER_NODE * (double) Math.abs(successNodeTs.nodePos - i);
+                    if (successNodeTs.nodePos == i) {
+                        // same node
+                        nodes[i].successfulTranmission();
+                        double nextTs = nodes[i].getLastestEventTimeStamp();
+                        if (nextTs > successNodeTs.getTimeStamp() + delay) {
+                            arrivalEvents.add(new nodeTimeStamp(nextTs, i));
+                        } else {
+                            nodes[i].notifyWaitTime(successNodeTs.getTimeStamp() + delay, isPresistent);
+                        }
                     } else {
-                        n.notifyWaitTime(waitTime);
+                        // other nodes
+                        double nextTs = nodes[i].getLastestEventTimeStamp();
+                        if (nextTs <= successNodeTs.getTimeStamp() + delay && nextTs != -1) {
+                            arrivalEvents.remove(new nodeTimeStamp(nextTs, i));
+                            nodes[i].notifyWaitTime(successNodeTs.getTimeStamp() + delay, isPresistent);
+                            arrivalEvents.add(new nodeTimeStamp(nodes[i].getLastestEventTimeStamp(), i));
+                        }
                     }
                 }
-            }
-
-        } else {
-            for (node n : collideNodes) {
-                n.expoBackOff();
+            } else {
+                //System.out.println("collision happen");
+                // collision happen
+                for (nodeTimeStamp nts : collideNts) {
+                    int nodePos = nts.getNodePos();
+                    arrivalEvents.remove(new nodeTimeStamp(nts.getTimeStamp(), nodePos));
+                    nodes[nodePos].handleCollision();
+                    arrivalEvents.add(new nodeTimeStamp(nodes[nodePos].getLastestEventTimeStamp(), nodePos));
+                    crtTransmittedPkg ++;
+                }
             }
         }
     }
 
-    public List<node> collisionDetection() {
-        List<node> updatedEvents = Collections.emptyList();
-        return updatedEvents;
+    public List<nodeTimeStamp> collisionDetection() {
+        nodeTimeStamp lastestEvent = arrivalEvents.peek();
+        List<nodeTimeStamp> collideNts = new ArrayList<nodeTimeStamp>();
+        //System.out.println("min.ts: " + lastestEvent.getTimeStamp());
+        for (nodeTimeStamp e : arrivalEvents) {
+            double delay = PROP_DELAY_PER_NODE * (double) Math.abs(lastestEvent.nodePos - e.nodePos);
+            //System.out.println("e.ts: " + e.getTimeStamp() + ", min.ts: " + (lastestEvent.getTimeStamp() + delay));
+            if (e.getTimeStamp() <= (lastestEvent.getTimeStamp() + delay)){
+                collideNts.add(e);
+                //System.out.println("collision!!");
+            }
+        }
+        return collideNts;
     }
     
     public double genereateEfficiency() {
-    	return crtSuccessfulTransmittedPkg / crtTransmittedPkg;
+    	return (double) crtSuccessfulTransmittedPkg / crtTransmittedPkg;
 
     }
 
     public double calculateThroughput() {
-    	return (crtSuccessfulTransmittedPkg * avgPacketLength) / simulationTime;
+    	return (double) (crtSuccessfulTransmittedPkg * avgPacketLength) / simulationTime;
     }
     
 }
